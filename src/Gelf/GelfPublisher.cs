@@ -26,12 +26,13 @@ namespace Gelf
         {
             RemoteHostname = remoteHostname;
             RemoteHostPort = remoteHostPort;
-            
+
             client = new UdpClient(RemoteHostname, RemoteHostPort);
         }
 
         /// <summary>
         /// Publishes a Gelf message to the specified Graylog server.
+        /// <exception cref="GelfMessageTooBigException">When payload is too big to be sent as GELF message</exception>
         /// </summary>
         public void Publish(GelfMessage message)
         {
@@ -41,6 +42,11 @@ namespace Gelf
             if (Constants.MaxChunkSize < bytes.Length)
             {
                 var chunkCount = (bytes.Length / Constants.MaxChunkSize) + 1;
+
+                if (chunkCount > Constants.MaxChunkCount)
+                {
+                    throw new GelfMessageTooBigException($"Message of size {bytes.Length} will break up into {chunkCount} chunks, which is greater than maximum of GELF standard {Constants.MaxChunkCount}");
+                }
                 var messageId = ChunkedMessageHelper.GenerateMessageId();
                 var state = new UdpState { SendClient = client, Bytes = bytes, ChunkCount = chunkCount, MessageId = messageId, SendIndex = 0 };
                 var messageChunkFull = ChunkedMessageHelper.GetMessageChunkFull(state.Bytes, state.MessageId, state.SendIndex, state.ChunkCount);

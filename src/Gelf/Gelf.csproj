@@ -44,6 +44,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="GelfMessage.cs" />
+    <Compile Include="GelfMessageTooBigException.cs" />
     <Compile Include="GelfPublisher.cs" />
     <Compile Include="IGelfPublisher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

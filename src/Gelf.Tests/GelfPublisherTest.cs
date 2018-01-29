@@ -63,5 +63,20 @@ namespace Gelf.Tests
             Assert.That(receivedObject.full_message.ToString(), Is.EqualTo(gelfMessageToSend.FullMessage));
             Assert.That(receivedObject.short_message.ToString(), Is.EqualTo(gelfMessageToSend.ShortMessage));
         }
+
+        [Test]
+        public void Given_large_payload_that_exced_gelf_max_chunk_count_publish_should_throw_message_to_big_exception()
+        {
+            var bigPayload = new byte[130000];
+
+            var gelfMessageToSend = new GelfMessage();
+
+            var random = new Random();
+            random.NextBytes(bigPayload);
+
+            gelfMessageToSend["big_payload"] = bigPayload;
+
+            Assert.Throws<GelfMessageTooBigException>(() => gelfPublisher.Publish(gelfMessageToSend));
+        }
     }
 }
